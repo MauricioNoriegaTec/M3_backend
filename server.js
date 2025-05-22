@@ -15,7 +15,6 @@ app.use(cors()); // Enable CORS for all routes
  * /api-docs:
  *   get:
  *     summary: Displays API documentation
- *     description: Access interactive API documentation via Swagger UI
  */
 // Setup Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
