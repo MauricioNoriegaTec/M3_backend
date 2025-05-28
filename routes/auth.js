@@ -96,6 +96,7 @@ router.post('/login', async (req, res) => {
     );
 
     // Return user data (excluding password_hash)
+    // eslint-disable-next-line no-unused-vars
     const { password_hash, ...userData } = user;
     
     res.json({
@@ -148,39 +149,42 @@ router.post('/login', async (req, res) => {
 // Add a refresh token endpoint
 router.post('/refresh-token', async (req, res) => {
   const { refreshToken } = req.body;
-  
+
   if (!refreshToken) {
     return res.status(400).json({ message: 'Refresh token is required' });
   }
-  
+
   try {
     // Verify the refresh token
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'refresh-secret-key');
-    
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET || 'refresh-secret-key'
+    );
+
     // Get user from database
     const result = await pool.request()
       .input('userId', sql.Int, decoded.userId)
       .query('SELECT * FROM noriusers WHERE user_id = @userId');
-    
+
     const user = result.recordset[0];
-    
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
+
     // Create new access token
     const payload = {
       userId: user.user_id,
       email: user.email,
       username: user.username
     };
-    
+
     const token = jwt.sign(
       payload,
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
-    
+
     res.json({ token });
   } catch (err) {
     console.error('Token refresh error:', err);
@@ -189,3 +193,4 @@ router.post('/refresh-token', async (req, res) => {
 });
 
 module.exports = router;
+
